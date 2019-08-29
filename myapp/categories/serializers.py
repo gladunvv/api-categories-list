@@ -33,17 +33,31 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
     def _get_siblings(self, obj):
-        serializer = SiblingCategorySerializer(obj.parents.children.all().exclude(id=obj.id), many=True)
+        # print('1 -------', obj.parents.children.all().exclude(id=obj.id))
+        if obj.parents:
+            serializer = SiblingCategorySerializer(obj.parents.children.all().exclude(id=obj.id), many=True)
+        else:
+            return []
         return serializer.data
 
     def _get_children(self, obj):
+        print('2 --------', obj.children)
         serializer = ChildCategorySerializer(obj.children, many=True)
         return serializer.data
 
     def _get_parents(self, obj):
-        parent = Category.get.all()
-        serializer = ParentCategorySerializer(parent, many=True)
-        return serializer.data
+        parents_list = []
+        if obj.parents:
+            try:
+                while obj.parents:
+                    parents_list.append(obj.parents)
+                    obj = obj.parents
+            except:
+                serializer = ParentCategorySerializer(parents_list, many=True)
+                return serializer.data
+        else:
+            return []
+
 
 
     class Meta:

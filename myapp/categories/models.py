@@ -5,8 +5,8 @@ class Category(models.Model):
 
     name = models.CharField(verbose_name='Name', max_length=50, unique=True)
     parents = models.ForeignKey(
-        'self', default=None, blank=True, related_name='children', on_delete=models.CASCADE
-        )
+        'self', blank=True, null=True ,related_name='children', on_delete=models.CASCADE
+    )
 
     class Meta:
         ordering = ["name"]
