@@ -1,9 +1,10 @@
 from django.urls import path
 
-from categories.views import CategoryView
+from categories.views import CategoryView, CategoryPostView
 
 app_name = 'categories'
 
 urlpatterns = [
-    path('<int:pk>', CategoryView.as_view(), name='category')
+    path('', CategoryPostView.as_view(), name='category_post'),
+    path('<int:pk>', CategoryView.as_view(), name='category_get')
 ]
