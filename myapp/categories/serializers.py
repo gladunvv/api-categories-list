@@ -3,15 +3,6 @@ from rest_framework import serializers
 from categories.models import Category
 from json import loads, dumps
 
-# class RecursiveField(serializers.Serializer):
-
-#     def to_representation(self, value):
-#         serializer = self.parent.parent.__class__(value, context=self.context)
-#         return serializer.data
-
-
-
-
 
 class SubCategorySerializer(serializers.ModelSerializer):
 
@@ -26,9 +17,20 @@ class CategorySerializer(serializers.ModelSerializer):
     parents = serializers.SerializerMethodField('_get_parents')
     siblings = serializers.SerializerMethodField('_get_siblings')
 
+    class Meta:
+        model = Category
+        fields = (
+            'id',
+            'name',
+            'children',
+            'parents',
+            'siblings'
+        )
+
     def _get_siblings(self, obj):
         if obj.parents:
             serializer = SubCategorySerializer(obj.parents.children.all().exclude(id=obj.id), many=True)
+            print(serializer.data)
         else:
             return []
         return serializer.data
@@ -51,52 +53,11 @@ class CategorySerializer(serializers.ModelSerializer):
             return parents_list
 
 
-    # def create(self, validated_data):
-    #     print(validated_data)
-    #     items_data = validated_data['children'][0]
-    #     newlist = Category.objects.create(**validated_data)
-    #     for item_data in items_data:
-    #         Category.objects.create(parents=newlist, **item_data)
-    #     return list
-    #     # return Category.objects.create(**validated_data)
-
-
-    class Meta:
-        model = Category
-        fields = (
-            'id',
-            'name',
-            'children',
-            'parents',
-            'siblings'
-            )
-
-
-
-
-class SaveSerializer(serializers.ModelSerializer):
-    children = SubCategorySerializer(many=True)
-    # parents = RecursiveField(many=True, required=False)
-
-
-
     def create(self, validated_data):
-        childrens = validated_data.pop('children', None)
-        print(validated_data)
-        # print(items_data)
+        children_data = validated_data.pop('children', None)
         category = Category.objects.create(**validated_data)
-        if childrens is not None:
-            for children in childrens:
-                # item = dict(item_data).pop('children', None)
-                for item in [loads(dumps(children))]:
-                    Category.objects.create(parents=category, **children)
 
-                    self.create(validated_data=item)
+        for children in children_data:
+            Category.objects.create(parents=category, **children)
 
-            return category
-
-        # return Category.objects.create(**validated_data)
-
-    class Meta:
-        model = Category
-        fields = ('id', 'name', 'children')
+        return category

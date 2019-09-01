@@ -5,7 +5,8 @@ from rest_framework.views import APIView
 from rest_framework import status
 
 from categories.models import Category
-from categories.serializers import CategorySerializer, SaveSerializer
+from categories.serializers import CategorySerializer
+# SaveSerializer
 
 
 class CategoryView(APIView):
@@ -21,8 +22,7 @@ class CategoryPostView(APIView):
     
     def post(self, request):
             category = request.data
-            print(category)
-            serializer = SaveSerializer(data=category)
+            serializer = CategorySerializer(data=category)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
 
