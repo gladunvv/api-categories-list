@@ -37,6 +37,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     def _get_children(self, obj):
         serializer = SubCategorySerializer(obj.children, many=True)
+        print(serializer.data)
         return serializer.data
 
     def _get_parents(self, obj):
@@ -53,11 +54,19 @@ class CategorySerializer(serializers.ModelSerializer):
             return parents_list
 
 
-    def create(self, validated_data):
-        children_data = validated_data.pop('children', None)
-        category = Category.objects.create(**validated_data)
+class SaveCategorySerializer(serializers.ModelSerializer):
 
+    children = SubCategorySerializer(many=True)
+
+    class Meta:
+        model = Category
+        fields = ('id', 'name', 'children')
+
+
+    def create(self, validated_data):
+
+        children_data = validated_data.pop('children')
+        category = Category.objects.create(**validated_data)
         for children in children_data:
             Category.objects.create(parents=category, **children)
-
         return category

@@ -5,8 +5,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 
 from categories.models import Category
-from categories.serializers import CategorySerializer
-# SaveSerializer
+from categories.serializers import CategorySerializer, SaveCategorySerializer
 
 
 class CategoryView(APIView):
@@ -18,12 +17,20 @@ class CategoryView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+
 class CategoryPostView(APIView):
+    # def recurcive(self, data):
+    #     for data in data['children']
+    #     serializer = SaveCategorySerializer(data)
     
     def post(self, request):
-            category = request.data
-            serializer = CategorySerializer(data=category)
-            if serializer.is_valid(raise_exception=True):
-                serializer.save()
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        category = request.data
+        print(request.data)
+        for key in category.keys():
+            if key == 'children':
+                category = category[key][0]['name']
+        serializer = SaveCategorySerializer(data=category)
+        print('--------s',serializer)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
