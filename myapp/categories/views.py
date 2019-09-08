@@ -19,9 +19,6 @@ class CategoryView(APIView):
 
 
 class CategoryPostView(APIView):
-    # def recurcive(self, data):
-    #     for data in data['children']
-    #     serializer = SaveCategorySerializer(data)
     
     def post(self, request):
         category = request.data
